@@ -383,7 +383,10 @@ public final class ConnectionContextHelper {
                     map);
         } else if (conn instanceof WSDLSchemaConnection) {
             OtherConnectionContextUtils.setWSDLSchemaPropertiesForExistContextMode((WSDLSchemaConnection) conn, paramSet, map);
+        } else if (conn instanceof SAPConnection) {
+            OtherConnectionContextUtils.setSAPConnectionPropertiesForExistContextMode((SAPConnection) conn, paramSet, map);
         }
+
         // set connection for context mode
         connectionItem.getConnection().setContextMode(true);
         connectionItem.getConnection().setContextId(selItem.getProperty().getId());
@@ -1575,6 +1578,8 @@ public final class ConnectionContextHelper {
             OtherConnectionContextUtils.revertWSDLSchemaPropertiesForContextMode((WSDLSchemaConnection) conn, contextType);
         } else if (conn instanceof SalesforceSchemaConnection) {
             OtherConnectionContextUtils.revertSalesforcePropertiesForContextMode((SalesforceSchemaConnection) conn, contextType);
+        } else if (conn instanceof SAPConnection) {
+            OtherConnectionContextUtils.revertSAPPropertiesForContextMode((SAPConnection) conn, contextType);
         } else if (conn instanceof GenericSchemaConnection) {
             //
         }

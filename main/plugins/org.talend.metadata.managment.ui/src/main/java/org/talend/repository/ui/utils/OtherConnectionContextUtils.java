@@ -619,6 +619,57 @@ public final class OtherConnectionContextUtils {
         conn.setLanguage(ContextParameterUtils.getNewScriptCode(paramName, LANGUAGE));
     }
 
+    static void setSAPConnectionPropertiesForExistContextMode(SAPConnection sapConn, Set<IConnParamName> paramSet,
+            Map<ContextItem, List<ConectionAdaptContextVariableModel>> map) {
+        if (sapConn == null) {
+            return;
+        }
+
+        String sapVariableName = null;
+        ContextItem currentContext = null;
+        for (IConnParamName param : paramSet) {
+            if (param instanceof EParamName) {
+                if (param instanceof EParamName) {
+                    EParamName sapParam = (EParamName) param;
+                    if (map != null && map.size() > 0) {
+                        for (Map.Entry<ContextItem, List<ConectionAdaptContextVariableModel>> entry : map.entrySet()) {
+                            currentContext = entry.getKey();
+                            List<ConectionAdaptContextVariableModel> modelList = entry.getValue();
+                            for (ConectionAdaptContextVariableModel model : modelList) {
+                                if (model.getValue().equals(sapParam.name())) {
+                                    sapVariableName = model.getName();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    sapVariableName = getCorrectVariableName(currentContext, sapVariableName, sapParam);
+                    switch (sapParam) {
+                    case Client:
+                        sapConn.setClient(ContextParameterUtils.getNewScriptCode(sapVariableName, LANGUAGE));
+                        break;
+                    case Host:
+                        sapConn.setHost(ContextParameterUtils.getNewScriptCode(sapVariableName, LANGUAGE));
+                        break;
+                    case UserName:
+                        sapConn.setUsername(ContextParameterUtils.getNewScriptCode(sapVariableName, LANGUAGE));
+                        break;
+                    case Password:
+                        sapConn.setPassword(ContextParameterUtils.getNewScriptCode(sapVariableName, LANGUAGE));
+                        break;
+                    case SystemNumber:
+                        sapConn.setSystemNumber(ContextParameterUtils.getNewScriptCode(sapVariableName, LANGUAGE));
+                        break;
+                    case Language:
+                        sapConn.setLanguage(ContextParameterUtils.getNewScriptCode(sapVariableName, LANGUAGE));
+                        break;
+                    default:
+                    }
+                }
+            }
+        }
+    }
+
     static void revertSAPPropertiesForContextMode(SAPConnection conn, ContextType contextType) {
         String client = TalendQuoteUtils.removeQuotes(ConnectionContextHelper.getOriginalValue(contextType, conn.getClient()));
         String host = TalendQuoteUtils.removeQuotes(ConnectionContextHelper.getOriginalValue(contextType, conn.getHost()));
@@ -1395,7 +1446,7 @@ public final class OtherConnectionContextUtils {
         if (connection.isContextMode()) {
             ContextType contextType = ConnectionContextHelper.getContextTypeForContextMode(connection, contextString,
                     defaultContext);
-            return (SAPConnection) OtherConnectionContextUtils.cloneOriginalValueSAPConnection(connection, contextType);
+            return OtherConnectionContextUtils.cloneOriginalValueSAPConnection(connection, contextType);
         }
         return connection;
 
