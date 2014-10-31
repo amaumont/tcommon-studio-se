@@ -584,7 +584,6 @@ public class ExtendedContextColumnPropertyAccessor<R> implements IColumnProperty
             // update nodes in the job
             if (modelManager instanceof ContextComposite) {
                 ((ContextComposite) modelManager).switchSettingsView(_oldName, _newName);
-                modelManager.refresh();
             }
         }
 
