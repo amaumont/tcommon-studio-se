@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.EMap;
 import org.talend.commons.CommonsPlugin;
 import org.talend.commons.exception.CommonExceptionHandler;
+import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.utils.io.FilesUtils;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.ILibraryManagerService;
@@ -41,6 +42,7 @@ import org.talend.core.language.ECodeLanguage;
 import org.talend.core.model.components.IComponent;
 import org.talend.core.model.general.ILibrariesService;
 import org.talend.core.model.general.ModuleNeeded;
+import org.talend.core.model.metadata.builder.database.ExtractMetaDataUtils;
 import org.talend.librariesmanager.emf.librariesindex.LibrariesIndex;
 import org.talend.librariesmanager.model.ExtensionModuleManager;
 import org.talend.librariesmanager.model.ModulesNeededProvider;
@@ -590,6 +592,41 @@ public class LocalLibraryManager implements ILibraryManagerService {
     @Override
     public void forceListUpdate() {
         listToUpdate = true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.talend.core.ILibraryManagerService#refreshDependencyJar()
+     */
+    @Override
+    public boolean refreshDependencyJar(File externalLib) {
+        boolean refreshJar = false;
+        File indexFile = new File(LibrariesIndexManager.getInstance().getIndexFilePath());
+        if (indexFile.exists()) {
+            LibrariesIndexManager.getInstance().loadResource();
+        }
+        File jarFile;
+        try {
+            jarFile = getJarFile(externalLib.getName());
+            if (jarFile != null) {
+                if (!ExtractMetaDataUtils.getInstance().checkFileCRCCode(jarFile, externalLib)) {
+                    refreshJar = true;
+                    // here will overwrite the original jar if exist
+                    if (externalLib.exists()) {
+                        externalLib.delete();
+                        FilesUtils.copyFile(jarFile, externalLib);
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+            ExceptionHandler.process(e);
+        } catch (IOException e) {
+            ExceptionHandler.process(e);
+        } catch (Exception e) {
+            ExceptionHandler.process(e);
+        }
+        return refreshJar;
     }
 
 }

@@ -80,7 +80,7 @@ public class ImportExternalJarAction extends Action {
                     File file = new File(path + File.separatorChar + fileName);
                     try {
                         LibManagerUiPlugin.getDefault().getLibrariesService().deployLibrary(file.toURL());
-                        emptyLibs();
+                        // emptyLibs();
                     } catch (Exception e) {
                         ExceptionHandler.process(e);
                     }
