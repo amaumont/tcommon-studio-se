@@ -17,16 +17,23 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.talend.commons.exception.ExceptionHandler;
+import org.talend.core.GlobalServiceRegister;
+import org.talend.core.ILibraryManagerService;
 
 /**
  * DOC ycbai class global comment. Detailled comment
  */
 public class DynamicClassLoader extends URLClassLoader {
+
+    private final static String PATH_SEPARATOR = "/"; //$NON-NLS-1$
 
     private String libStorePath;
 
@@ -34,10 +41,14 @@ public class DynamicClassLoader extends URLClassLoader {
      * DOC ycbai DynamicClassLoader constructor comment.
      */
     public DynamicClassLoader() {
-        super(new URL[0], DynamicClassLoader.class.getClassLoader());
+        this(new URL[0]);
     }
 
-    public void addLibraries(String lib) {
+    public DynamicClassLoader(URL[] urls) {
+        super(urls, DynamicClassLoader.class.getClassLoader());
+    }
+
+    public void addLibrary(String lib) {
         if (lib != null) {
             File libFile = new File(lib);
             try {
@@ -51,7 +62,7 @@ public class DynamicClassLoader extends URLClassLoader {
     public void addLibraries(List<String> libs) {
         if (libs != null && libs.size() > 0) {
             for (String lib : libs) {
-                addLibraries(lib);
+                addLibrary(lib);
             }
         }
     }
@@ -97,6 +108,53 @@ public class DynamicClassLoader extends URLClassLoader {
 
     public void setLibStorePath(String libStorePath) {
         this.libStorePath = libStorePath;
+    }
+
+    public static DynamicClassLoader createNewOneBaseLoader(DynamicClassLoader baseLoader, String[] addedJars,
+            String[] excludedJars) throws MalformedURLException {
+        if (baseLoader == null) {
+            baseLoader = new DynamicClassLoader();
+        }
+        if (addedJars == null) {
+            addedJars = new String[0];
+        }
+        if (excludedJars == null) {
+            excludedJars = new String[0];
+        }
+        URL[] baseURLs = baseLoader.getURLs();
+        String libPath = baseLoader.getLibStorePath();
+        if (libPath == null) {
+            libPath = ClassLoaderFactory.getLibPath();
+        }
+        List<URL> urlList = new ArrayList<URL>(Arrays.asList(baseURLs));
+        updateLoaderURLs(urlList, libPath, addedJars, true);
+        updateLoaderURLs(urlList, libPath, excludedJars, false);
+        DynamicClassLoader loader = new DynamicClassLoader(urlList.toArray(new URL[0]));
+        loader.setLibStorePath(libPath);
+
+        return loader;
+    }
+
+    private static void updateLoaderURLs(List<URL> urlList, String libPath, String[] jars, boolean added)
+            throws MalformedURLException {
+        for (String jarName : jars) {
+            if (added) {
+                ILibraryManagerService librairesService = (ILibraryManagerService) GlobalServiceRegister.getDefault().getService(
+                        ILibraryManagerService.class);
+                librairesService.retrieve(jarName, libPath, true, new NullProgressMonitor());
+            }
+            String jarPath = libPath + PATH_SEPARATOR + jarName;
+            File jarFile = new File(jarPath);
+            URL jarUrl = jarFile.toURI().toURL();
+            if (jarFile.exists()) {
+                if (added && !urlList.contains(jarUrl)) {
+                    urlList.add(jarUrl);
+                }
+                if (!added && urlList.contains(jarUrl)) {
+                    urlList.remove(jarUrl);
+                }
+            }
+        }
     }
 
 }

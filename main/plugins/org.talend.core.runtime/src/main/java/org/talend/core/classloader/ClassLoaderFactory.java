@@ -208,7 +208,7 @@ public class ClassLoaderFactory {
         return putInCache;
     }
 
-    private static String getLibPath() {
+    public static String getLibPath() {
         File tmpFolder = getTmpFolder();
         if (!tmpFolder.exists()) {
             tmpFolder.mkdirs();

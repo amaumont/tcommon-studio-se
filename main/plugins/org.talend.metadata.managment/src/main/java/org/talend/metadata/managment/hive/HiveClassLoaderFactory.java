@@ -132,7 +132,7 @@ public class HiveClassLoaderFactory {
             String jarPath = libStorePath + PATH_SEPARATOR + dependentJar;
             File jarFile = new File(jarPath);
             if (jarFile.exists()) {
-                loader.addLibraries(jarFile.getAbsolutePath());
+                loader.addLibrary(jarFile.getAbsolutePath());
             }
         }
     }
@@ -144,7 +144,7 @@ public class HiveClassLoaderFactory {
             final File driverJar = new File(driverJarPath);
             if (driverJar.exists()) {
                 if (!libraries.contains(driverJar)) {
-                    loader.addLibraries(driverJar.getAbsolutePath());
+                    loader.addLibrary(driverJar.getAbsolutePath());
                 }
             }
         }
