@@ -105,7 +105,7 @@ public class TeradataDataBaseMetadata extends FakeDatabaseMetaData {
             while (rs.next()) {
                 String columnName = rs.getString("Column Name").trim(); //$NON-NLS-1$
                 String pk = rs.getString("Primary?");//$NON-NLS-1$
-                String[] r = new String[] { columnName, pk };//$NON-NLS-1$
+                String[] r = new String[] { columnName, pk };
                 list.add(r);
             }
 
@@ -131,9 +131,9 @@ public class TeradataDataBaseMetadata extends FakeDatabaseMetaData {
      */
     @Override
     public ResultSet getTableTypes() throws SQLException {
-        String[] s1 = new String[] { CONST_TABLE }; //$NON-NLS-1$
-        String[] s2 = new String[] { CONST_VIEW }; //$NON-NLS-1$
-        String[] s3 = new String[] { CONST_SYNONYM }; //$NON-NLS-1$
+        String[] s1 = new String[] { CONST_TABLE };
+        String[] s2 = new String[] { CONST_VIEW };
+        String[] s3 = new String[] { CONST_SYNONYM };
 
         List<String[]> list = new ArrayList<String[]>();
 
@@ -168,7 +168,7 @@ public class TeradataDataBaseMetadata extends FakeDatabaseMetaData {
     @Override
     public ResultSet getTables(String catalog, String database, String tableNamePattern, String[] types) throws SQLException {
         // modify by wzhang
-        if (databaseName != null) {
+        if (databaseName != null && !databaseName.trim().isEmpty()) {
             database = databaseName;
         }
         // end
@@ -282,7 +282,7 @@ public class TeradataDataBaseMetadata extends FakeDatabaseMetaData {
         if (!StringUtils.isEmpty(database)) {
             sql = "HELP COLUMN \"" + database + "\".\"" + tableNamePattern + "\".* ";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         } else {
-            sql = "HELP COLUMN \"" + tableNamePattern + "\".* ";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            sql = "HELP COLUMN \"" + tableNamePattern + "\".* ";//$NON-NLS-1$//$NON-NLS-2$
         }
 
         ResultSet rs = null;
@@ -292,7 +292,7 @@ public class TeradataDataBaseMetadata extends FakeDatabaseMetaData {
             stmt = connection.createStatement();
             rs = stmt.executeQuery(sql);
             while (rs.next()) {
-                String tableName = tableNamePattern; //$NON-NLS-1$
+                String tableName = tableNamePattern;
                 String columnName = rs.getString("Column Name").trim(); //$NON-NLS-1$
                 String typeName = rs.getString("Type"); //$NON-NLS-1$
                 String columnSize = rs.getString("Max Length"); //$NON-NLS-1$
