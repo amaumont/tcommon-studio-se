@@ -1393,7 +1393,13 @@ public class ProjectRepositoryNode extends RepositoryNode implements IProjectRep
             // createTables(recBinNode, node, repObj, metadataConnection.getTables());
 
             // 4.Queries:
-            if (!ConnectionUtils.isHiveConnection(dbconn.getURL())) {
+            boolean isImpala = false;
+            if (metadataConnection instanceof DatabaseConnection) {
+                if (EDatabaseTypeName.IMPALA.getDisplayName().equals(((DatabaseConnection) metadataConnection).getDatabaseType())) {
+                    isImpala = true;
+                }
+            }
+            if (!ConnectionUtils.isHiveConnection(dbconn.getURL()) || isImpala) {
                 RepositoryNode queriesNode = new StableRepositoryNode(node,
                         Messages.getString("ProjectRepositoryNode.queries"), ECoreImage.FOLDER_CLOSE_ICON); //$NON-NLS-1$
                 node.getChildren().add(queriesNode);

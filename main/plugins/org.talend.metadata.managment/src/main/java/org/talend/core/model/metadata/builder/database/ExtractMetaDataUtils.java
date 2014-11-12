@@ -689,7 +689,12 @@ public class ExtractMetaDataUtils {
             if (conn != null && !conn.isClosed()) {
                 if (isReconnect || force) {
                     if (conn.getMetaData() != null) {
-                        String url = conn.getMetaData().getURL();
+                        String url = null;
+                        try {
+                            url = conn.getMetaData().getURL();
+                        } catch (Exception e) {
+                            // nothing to do
+                        }
                         boolean isInProcessModeHsql = ConnectionUtils.isInProcessModeHsql(url);
                         // we hold on hsql server's status when it is server mode and not In-Process mode.
                         // only shutdown in-process mode
